@@ -1,0 +1,487 @@
+import { Question } from '@/types/question';
+
+export const SEED_DBMS_QUESTIONS: Question[] = [
+  {
+    id: 'dbms-fd-01',
+    subject: 'DBMS',
+    topic: 'Functional Dependencies',
+    subtopic: 'Attribute Closure & Minimal Cover',
+    conceptId: 'functional_dependencies',
+    type: 'mcq',
+    difficulty: 'medium',
+    question: 'Given relation R(A, B, C, D, E) with Functional Dependencies: F = { AB -> C, C -> D, D -> E, E -> A }. What is the candidate key for R?',
+    options: [
+      { id: 'opt_a', text: 'AB, BC, CD, CE' },
+      { id: 'opt_b', text: 'AB, BC, BD, BE' },
+      { id: 'opt_c', text: 'Only AB' },
+      { id: 'opt_d', text: 'AB and BE only' },
+    ],
+    correctAnswers: ['opt_b'],
+    explanation: 'Compute closures: (AB)+ = {A,B,C,D,E}. Since E -> A, replacing A with E gives (EB)+ = {A,B,C,D,E}. Since D -> E, replacing E with D gives (DB)+ = {A,B,C,D,E}. Since C -> D, replacing D with C gives (CB)+ = {A,B,C,D,E}. Thus, AB, BC, BD, BE are all candidate keys.',
+    whyCorrect: 'Because B does not appear on the RHS of any FD, B must be in every candidate key. The cycle E -> A -> (with B) -> C -> D -> E enables each of {A, C, D, E} combined with B to derive all attributes.',
+    whyIncorrect: {
+      opt_a: 'CD does not contain B, and B cannot be derived from any attribute since B is never on any RHS.',
+      opt_c: 'AB is a candidate key, but not the only one. Any attribute that can derive A (like E, D, C) when paired with B also forms a candidate key.',
+      opt_d: 'Misses BC and BD which also derive the full attribute set {A, B, C, D, E}.',
+    },
+    hint: 'Notice which attribute never appears on the right-hand side of any dependency.',
+    hints: [
+      {
+        level: 1,
+        title: 'Conceptual Clue',
+        hint: 'Inspect the right-hand side (RHS) of all given dependencies to identify attributes that can never be derived by others.',
+      },
+      {
+        level: 2,
+        title: 'Direction & Strategy',
+        hint: 'Attribute B never appears on the RHS of any FD. Therefore, B MUST be included in every candidate key of this relation.',
+      },
+      {
+        level: 3,
+        title: 'Strong Hint',
+        hint: 'Calculate (AB)+ = {A,B,C,D,E}. Then trace the derivation chain E -> A, D -> E, and C -> D to see what pairs with B.',
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Identify Given Information',
+        content: 'Relation R(A, B, C, D, E) with FDs: AB -> C, C -> D, D -> E, E -> A.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Identify Essential Attributes',
+        content: 'Scan the RHS of all dependencies: {C, D, E, A}. Attribute B never appears on the RHS, which means B cannot be derived by any other attribute. B must be part of every candidate key.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Test Primary Key Closure',
+        content: '(AB)+ = {A, B} ∪ {C} (via AB->C) ∪ {D} (via C->D) ∪ {E} (via D->E) = {A, B, C, D, E}. Thus AB is a valid minimal candidate key.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Trace Cycle Substitutions',
+        content: 'Since E -> A, substitute A with E: (EB)+ = {A, B, C, D, E}.\nSince D -> E, substitute E with D: (DB)+ = {A, B, C, D, E}.\nSince C -> D, substitute D with C: (CB)+ = {A, B, C, D, E}.',
+      },
+      {
+        stepNumber: 5,
+        title: 'Compile Complete Candidate Key Set',
+        content: 'All minimal superkeys are AB, BC, BD, BE.',
+      },
+    ],
+    methods: [
+      {
+        title: 'Method 1 — Standard Attribute Closure',
+        type: 'standard',
+        description: 'Find essential attributes (B), compute closure of candidate combinations starting with AB, and verify minimality by checking subsets.',
+      },
+      {
+        title: 'Method 2 — Cycle Substitution Approach',
+        type: 'alternative',
+        description: 'Notice the directed cycle C -> D -> E -> A. Once AB is proven to be a candidate key, any attribute in the cycle combined with essential attribute B forms an equivalent candidate key.',
+      },
+      {
+        title: 'Method 3 — RHS Elimination Shortcut',
+        type: 'shortcut',
+        description: 'Any candidate key must contain B. Option A lacks B in "CD" and "CE", so eliminate Option A instantly. Option C asserts "Only AB" which ignores the cycle.',
+      },
+    ],
+    sourceDocumentName: 'GATE CSE Database Notes',
+    sourcePageNumber: 42,
+    tags: ['Candidate Keys', 'Closure', 'GATE CSE 2018'],
+  },
+  {
+    id: 'dbms-norm-02',
+    subject: 'DBMS',
+    topic: 'Normalization',
+    subtopic: '3NF vs BCNF Decomposition',
+    conceptId: 'functional_dependencies',
+    type: 'mcq',
+    difficulty: 'hard',
+    question: 'Consider relation R(A, B, C, D) with FDs: { AB -> C, C -> D, D -> A }. In which highest normal form is relation R?',
+    options: [
+      { id: 'opt_a', text: '1NF only' },
+      { id: 'opt_b', text: '2NF but not 3NF' },
+      { id: 'opt_c', text: '3NF but not BCNF' },
+      { id: 'opt_d', text: 'BCNF' },
+    ],
+    correctAnswers: ['opt_c'],
+    explanation: 'Candidate keys are AB, BC, BD. Prime attributes are A, B, C, D. For every FD X -> Y: In AB -> C, AB is a superkey. In C -> D, D is a prime attribute. In D -> A, A is a prime attribute. Therefore, all FDs satisfy the 3NF condition (either LHS is superkey or RHS is prime attribute). However, in C -> D and D -> A, neither C nor D is a superkey, so R is NOT in BCNF.',
+    whyCorrect: '3NF requires that for every X -> Y, X is a superkey OR Y is a prime attribute. Since all attributes A, B, C, D are prime, the prime attribute rule is satisfied for all FDs. But C and D are not superkeys, violating BCNF.',
+    whyIncorrect: {
+      opt_a: 'It satisfies higher normal forms since there are no partial dependencies.',
+      opt_b: 'R satisfies 3NF because the RHS of every non-superkey FD is a prime attribute.',
+      opt_d: 'BCNF strictly requires LHS to be a superkey for every non-trivial FD. C and D are not superkeys.',
+    },
+    hint: 'List all candidate keys and check if every attribute belongs to at least one candidate key (prime attribute).',
+    hints: [
+      {
+        level: 1,
+        title: 'Conceptual Clue',
+        hint: 'Review the definition of 3NF: For every non-trivial FD X -> Y, either X is a superkey OR Y is a prime attribute.',
+      },
+      {
+        level: 2,
+        title: 'Direction & Strategy',
+        hint: 'Compute all candidate keys first. Notice what happens when you combine B with the cycle C -> D -> A.',
+      },
+      {
+        level: 3,
+        title: 'Strong Hint',
+        hint: 'Candidate keys are AB, BC, and BD. Notice that every single attribute {A, B, C, D} is a prime attribute!',
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Find All Candidate Keys',
+        content: 'B does not appear on RHS, so B is essential. (AB)+ = ABCD. (BC)+ = BCDA. (BD)+ = BDAC. Candidate keys are AB, BC, BD.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Identify Prime Attributes',
+        content: 'Prime attributes = Union of all candidate keys = {A, B} ∪ {B, C} ∪ {B, D} = {A, B, C, D}. All attributes are prime!',
+      },
+      {
+        stepNumber: 3,
+        title: 'Test 3NF Condition for Each FD',
+        content: '1) AB -> C: LHS is a superkey (Satisfied)\n2) C -> D: RHS (D) is a prime attribute (Satisfied)\n3) D -> A: RHS (A) is a prime attribute (Satisfied)\nAll FDs satisfy 3NF.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Test BCNF Condition',
+        content: 'BCNF requires LHS to be a superkey for every non-trivial FD. In C -> D, C+ = CDA ≠ ABCD (not a superkey). Therefore, BCNF is violated.',
+      },
+      {
+        stepNumber: 5,
+        title: 'Conclude Highest Normal Form',
+        content: 'Relation R satisfies 3NF but fails BCNF. Highest normal form is 3NF.',
+      },
+    ],
+    methods: [
+      {
+        title: 'Method 1 — Standard Step-by-Step Verification',
+        type: 'standard',
+        description: 'Derive candidate keys -> List prime attributes -> Check 2NF -> Check 3NF definition for each FD -> Check BCNF definition.',
+      },
+      {
+        title: 'Method 2 — All-Prime Attribute Theorem (Shortcut)',
+        type: 'shortcut',
+        description: 'Theorem: If all attributes in a relation are prime attributes, the relation is automatically in 3NF! Then simply verify if any non-superkey FD exists (C->D) to rule out BCNF.',
+      },
+    ],
+    sourceDocumentName: 'GATE CSE Database Notes',
+    sourcePageNumber: 58,
+    tags: ['3NF', 'BCNF', 'GATE CSE 2021'],
+  },
+  {
+    id: 'dbms-trans-03',
+    subject: 'DBMS',
+    topic: 'Transactions',
+    subtopic: 'Conflict Serializability & Precedence Graphs',
+    conceptId: 'transactions_concurrency',
+    type: 'mcq',
+    difficulty: 'medium',
+    question: 'Consider schedule S with 3 transactions: r1(X); r2(Z); r1(Z); r3(X); r3(Y); w1(X); w3(Y); r2(Y); w2(Z); w2(Y). Is this schedule conflict serializable?',
+    options: [
+      { id: 'opt_a', text: 'Yes, equivalent serial schedule is T1 -> T3 -> T2' },
+      { id: 'opt_b', text: 'Yes, equivalent serial schedule is T3 -> T1 -> T2' },
+      { id: 'opt_c', text: 'No, because there is a cycle between T1 and T3' },
+      { id: 'opt_d', text: 'No, because there is a cycle between T2 and T3' },
+    ],
+    correctAnswers: ['opt_b'],
+    explanation: 'Check conflicting operations: On X: r3(X) appears before w1(X), giving edge T3 -> T1. On Z: r1(Z) appears before w2(Z), giving edge T1 -> T2. On Y: w3(Y) appears before r2(Y) and w2(Y), giving edge T3 -> T2. Precedence graph has edges {T3 -> T1, T1 -> T2, T3 -> T2}. Since the graph contains no cycles, S is conflict serializable. Topological ordering yields T3 -> T1 -> T2.',
+    whyCorrect: 'Precedence graph edges: On X: r3(X) before w1(X) creates T3 -> T1. On Z: r1(Z) before w2(Z) creates T1 -> T2. On Y: w3(Y) before r2(Y) and w2(Y) creates T3 -> T2. Edges are {T3 -> T1, T1 -> T2, T3 -> T2}. No cycle exists, and topological sort gives T3 -> T1 -> T2.',
+    whyIncorrect: {
+      opt_a: 'T1 cannot precede T3 because r3(X) happens before w1(X), strictly enforcing T3 before T1.',
+      opt_c: 'There is no edge from T1 to T3 on X because r1(X) and r3(X) are both read operations and do not conflict.',
+      opt_d: 'T3 executes its write on Y before T2 reads Y, so T3 -> T2; T2 never writes Y before T3 touches it.',
+    },
+    hint: 'Two operations conflict if and only if they belong to different transactions, access the same data item, and at least one is a write.',
+    hints: [
+      {
+        level: 1,
+        title: 'Conceptual Clue',
+        hint: 'Two operations conflict if they are executed by different transactions on the same data item and at least one is a write.',
+      },
+      {
+        level: 2,
+        title: 'Direction & Strategy',
+        hint: 'List conflicts separately for items X, Y, and Z. Draw a directed edge from Ti -> Tj if Ti executes before Tj.',
+      },
+      {
+        level: 3,
+        title: 'Strong Hint',
+        hint: 'Conflicts: r3(X) before w1(X) => T3 -> T1. r1(Z) before w2(Z) => T1 -> T2. w3(Y) before r2(Y) => T3 -> T2. Check if this DAG has a cycle.',
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Identify Conflicting Operations on X',
+        content: 'r3(X) is executed before w1(X). Since one is a write by another transaction, this creates directed edge: T3 -> T1.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Identify Conflicting Operations on Z',
+        content: 'r1(Z) is executed before w2(Z). Conflict creates directed edge: T1 -> T2.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Identify Conflicting Operations on Y',
+        content: 'w3(Y) is executed before r2(Y) and w2(Y). Conflict creates directed edge: T3 -> T2.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Construct Precedence Graph & Test Acyclicity',
+        content: 'Edge set E = {(T3, T1), (T1, T2), (T3, T2)}. No back-edges exist; the graph is completely acyclic.',
+      },
+      {
+        stepNumber: 5,
+        title: 'Perform Topological Sorting',
+        content: 'In-degree of T3 = 0. In-degree of T1 = 1 (from T3). In-degree of T2 = 2 (from T3, T1). Unique topological order is T3 -> T1 -> T2.',
+      },
+    ],
+    methods: [
+      {
+        title: 'Method 1 — Serialization Graph (Standard)',
+        type: 'standard',
+        description: 'Formally detect all conflicting pairs (r-w, w-r, w-w) on each shared variable, draw directed edges, and perform topological sort.',
+      },
+      {
+        title: 'Method 2 — Elimination by Conflict Inspection',
+        type: 'shortcut',
+        description: 'Notice r3(X) happens before w1(X). This mandates that T3 must precede T1. This immediately eliminates Option A.',
+      },
+    ],
+    sourceDocumentName: 'Transactions & Concurrency Guide',
+    sourcePageNumber: 19,
+    tags: ['Conflict Serializability', 'Precedence Graph', 'GATE CSE 2019'],
+  },
+  {
+    id: 'dbms-idx-04',
+    subject: 'DBMS',
+    topic: 'Indexing',
+    subtopic: 'B+ Tree Order & Block Capacity',
+    conceptId: 'indexing_btrees',
+    type: 'numerical',
+    difficulty: 'hard',
+    question: 'A B+ tree index is created on a search key of 12 bytes. Block size is 1024 bytes, record pointer is 8 bytes, and block pointer is 6 bytes. What is the maximum order (fanout) of an internal node in this B+ tree?',
+    correctAnswers: ['57'],
+    explanation: 'An internal node with order p contains at most p block pointers and (p - 1) search keys. Total size <= Block Size: p * (block pointer) + (p - 1) * (key size) <= 1024. p * 6 + (p - 1) * 12 <= 1024 => 6p + 12p - 12 <= 1024 => 18p <= 1036 => p <= 1036 / 18 = 57.55. Since p must be an integer, maximum order p = 57.',
+    whyCorrect: 'The internal node formula is p * (block pointer) + (p - 1) * (search key) <= Block Size. 6p + 12(p - 1) <= 1024 => 18p <= 1036 => p = floor(57.55) = 57.',
+    hint: 'Recall that an internal node of order p has p block pointers and (p - 1) search keys.',
+    hints: [
+      {
+        level: 1,
+        title: 'Conceptual Clue',
+        hint: 'An internal node in a B+ tree contains block pointers to children and search keys separating them. It does NOT contain record pointers.',
+      },
+      {
+        level: 2,
+        title: 'Direction & Strategy',
+        hint: 'For an internal node with order p, there are p block pointers and (p - 1) search keys. Set up: p*(P) + (p-1)*(K) <= Block Size.',
+      },
+      {
+        level: 3,
+        title: 'Strong Hint',
+        hint: 'Plug in: 6*p + 12*(p - 1) <= 1024. Notice that the 8-byte record pointer is a distractor because internal nodes do not store record pointers.',
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Identify Given Parameters',
+        content: 'Block Size (B) = 1024 bytes\nSearch Key Size (K) = 12 bytes\nBlock Pointer Size (P) = 6 bytes\nRecord Pointer = 8 bytes (Internal nodes do not store record pointers; this is a distractor).',
+      },
+      {
+        stepNumber: 2,
+        title: 'Formulate Internal Node Capacity Inequality',
+        content: 'p * P + (p - 1) * K <= B\nwhere p is the maximum order (fanout).',
+      },
+      {
+        stepNumber: 3,
+        title: 'Substitute Values',
+        content: 'p * 6 + (p - 1) * 12 <= 1024\n6p + 12p - 12 <= 1024\n18p - 12 <= 1024',
+      },
+      {
+        stepNumber: 4,
+        title: 'Solve for p',
+        content: '18p <= 1024 + 12\n18p <= 1036\np <= 1036 / 18 ≈ 57.555...',
+      },
+      {
+        stepNumber: 5,
+        title: 'Apply Floor Integer Constraint',
+        content: 'The order must be an integer. Taking the floor value: p = 57.',
+      },
+    ],
+    methods: [
+      {
+        title: 'Method 1 — Algebraic Derivation',
+        type: 'standard',
+        description: 'Write out the full memory layout inequality p*P + (p-1)*K <= B, expand and solve for floor(p).',
+      },
+      {
+        title: 'Method 2 — Fast Fanout Shortcut Formula',
+        type: 'shortcut',
+        description: 'Formula: p = floor((B + K) / (P + K)) = floor((1024 + 12) / (6 + 12)) = floor(1036 / 18) = 57.',
+      },
+    ],
+    sourceDocumentName: 'File Organization & B+ Trees',
+    sourcePageNumber: 74,
+    tags: ['B+ Trees', 'Block Size', 'Fanout', 'GATE CSE 2020'],
+  },
+  {
+    id: 'dbms-sql-05',
+    subject: 'DBMS',
+    topic: 'SQL',
+    subtopic: 'Correlated Subqueries & Aggregation',
+    conceptId: 'sql_queries',
+    type: 'mcq',
+    difficulty: 'medium',
+    question: 'Consider table Employee(empId, deptId, salary). Which query finds the employee(s) who earn the highest salary in their respective departments?',
+    options: [
+      { id: 'opt_a', text: 'SELECT * FROM Employee E WHERE salary >= ALL (SELECT salary FROM Employee WHERE deptId = E.deptId)' },
+      { id: 'opt_b', text: 'SELECT * FROM Employee GROUP BY deptId HAVING salary = MAX(salary)' },
+      { id: 'opt_c', text: 'SELECT * FROM Employee WHERE salary IN (SELECT MAX(salary) FROM Employee)' },
+      { id: 'opt_d', text: 'SELECT empId, deptId, MAX(salary) FROM Employee' },
+    ],
+    correctAnswers: ['opt_a'],
+    explanation: 'Option A is a valid correlated subquery: for each outer tuple E, the subquery selects all salaries from the same department E.deptId. If E.salary is >= all of them, E is selected. Option B is invalid SQL in standard DBMS (non-aggregated columns in SELECT with GROUP BY). Option C finds the global maximum salary, not per department.',
+    whyCorrect: 'The correlated subquery compares E.salary with the set of salaries belonging to the same department (deptId = E.deptId) using the ALL comparison operator.',
+    whyIncorrect: {
+      opt_b: 'Violates SQL syntax because empId is neither in the GROUP BY clause nor inside an aggregate function.',
+      opt_c: 'Only finds the person with the maximum salary across the entire company, ignoring department boundaries.',
+      opt_d: 'Invalid SQL syntax; empId is not grouped nor aggregated.',
+    },
+    hint: 'The inner query must be correlated to the outer query via the department identifier.',
+    hints: [
+      {
+        level: 1,
+        title: 'Conceptual Clue',
+        hint: 'To compare each employee against only their own department, the subquery must correlate the outer row with the inner rows.',
+      },
+      {
+        level: 2,
+        title: 'Direction & Strategy',
+        hint: 'Check options B and D against SQL GROUP BY syntax rules: any column in SELECT must either be in GROUP BY or wrapped in an aggregate.',
+      },
+      {
+        level: 3,
+        title: 'Strong Hint',
+        hint: 'Option A uses "WHERE deptId = E.deptId" to tie the inner query to the outer employee tuple, and ">= ALL" to verify maximum salary within that department.',
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Identify the Query Requirement',
+        content: 'Find all employee rows whose salary is maximum within their own department.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Syntax Validation on Group By',
+        content: 'In Option B and D, `SELECT *` or `SELECT empId` with `GROUP BY deptId` violates standard SQL rules (only grouped or aggregate columns can be selected).',
+      },
+      {
+        stepNumber: 3,
+        title: 'Analyze Subquery in Option C',
+        content: '`SELECT MAX(salary) FROM Employee` computes the company-wide maximum, not department-specific maximum.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Evaluate Correlated Subquery in Option A',
+        content: 'For each outer employee E, the subquery `SELECT salary FROM Employee WHERE deptId = E.deptId` returns all salaries in E\'s department. `salary >= ALL(...)` evaluates to true only if E.salary is greater than or equal to all salaries in that department.',
+      },
+    ],
+    methods: [
+      {
+        title: 'Method 1 — Correlated Subquery with ALL',
+        type: 'standard',
+        description: 'Use correlated subquery with WHERE deptId = E.deptId and >= ALL (Option A).',
+      },
+      {
+        title: 'Method 2 — Window Function (Modern SQL Alternative)',
+        type: 'alternative',
+        description: 'Using modern SQL: `SELECT * FROM (SELECT *, DENSE_RANK() OVER (PARTITION BY deptId ORDER BY salary DESC) as rnk FROM Employee) WHERE rnk = 1`.',
+      },
+    ],
+    sourceDocumentName: 'SQL Mastery & Query Optimization',
+    sourcePageNumber: 31,
+    tags: ['Correlated Subquery', 'SQL', 'GATE CSE 2022'],
+  },
+  {
+    id: 'dbms-rel-06',
+    subject: 'DBMS',
+    topic: 'Relational Model',
+    subtopic: 'Relational Algebra Division Operator',
+    conceptId: 'relational_model',
+    type: 'mcq',
+    difficulty: 'medium',
+    question: 'In Relational Algebra, what does the Division operator (R ÷ S) compute?',
+    options: [
+      { id: 'opt_a', text: 'Tuples in R that match at least one tuple in S on common attributes' },
+      { id: 'opt_b', text: 'Tuples in R that match ALL tuples in S on common attributes' },
+      { id: 'opt_c', text: 'Difference between attributes of R and S' },
+      { id: 'opt_d', text: 'Cartesian product divided by cardinality of S' },
+    ],
+    correctAnswers: ['opt_b'],
+    explanation: 'Division operator R ÷ S is used for queries involving universal quantification ("for all"). It produces tuples in R whose projection on non-S attributes is paired with EVERY tuple in S.',
+    whyCorrect: 'Division corresponds to "FOR ALL" queries, finding entities related to all elements of a target set.',
+    whyIncorrect: {
+      opt_a: 'Matching at least one is achieved through Natural Join or Semi-join, not Division.',
+      opt_c: 'Difference between attributes is schema subtraction, not relational algebra division.',
+      opt_d: 'Division is a logical set operator, not arithmetic quotient of cardinality.',
+    },
+    hint: 'Think about queries like "Find students who have taken ALL courses offered by the CS department".',
+    hints: [
+      {
+        level: 1,
+        title: 'Conceptual Clue',
+        hint: 'Division in relational algebra represents universal quantification (the ∀ symbol in mathematical logic).',
+      },
+      {
+        level: 2,
+        title: 'Direction & Strategy',
+        hint: 'Consider canonical queries that require division: "Find pilots certified for ALL aircraft types", "Find customers who ordered ALL products".',
+      },
+      {
+        level: 3,
+        title: 'Strong Hint',
+        hint: 'At-least-one match is existential quantification (∃, achieved by projection and join). Division is specifically "for ALL" matches.',
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Formal Definition of Division',
+        content: 'Let relation R have attribute set A and relation S have attribute set B, where B ⊆ A. Let C = A - B.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Condition for Result Tuples',
+        content: 'A tuple t over attributes C is in R ÷ S if for every tuple s in S, the concatenated tuple <t, s> is present in R.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Logical Equivalent',
+        content: 'R ÷ S expresses universal quantification (∀s ∈ S, ∃r ∈ R such that r[C] = t and r[B] = s).',
+      },
+    ],
+    methods: [
+      {
+        title: 'Method 1 — Universal Quantification Definition',
+        type: 'standard',
+        description: 'Understand division as the exact relational algebra counterpart to the universal quantifier ("for all").',
+      },
+      {
+        title: 'Method 2 — Primitive Operator Expansion',
+        type: 'alternative',
+        description: 'Division expressed using primitive operators: R ÷ S = π_C(R) - π_C((π_C(R) × S) - R).',
+      },
+    ],
+    sourceDocumentName: 'Relational Algebra Reference Manual',
+    sourcePageNumber: 14,
+    tags: ['Relational Algebra', 'Division Operator', 'Universal Quantification'],
+  },
+];
